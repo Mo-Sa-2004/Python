@@ -1,36 +1,28 @@
 # Python IP Address Validator Utility
 
-A lightweight, dependency-free Python library for validating IPv4/IPv6 addresses and extracting network metadata.
+A lightweight, zero-dependency Python utility and library for validating IPv4 and IPv6 addresses, validating CIDR notation, and extracting network metadata.
+
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
 ## Features
 
-- Validate IPv4 address format and boundary range `[0, 255]`.
-- Enforce strict octet formatting (disallows leading zeros).
-- Validate full IPv6 format.
-- Extract IP class, binary representations, and private/loopback flags.
+- **IPv4 Validation:** Checks standard dotted-decimal format (`0.0.0.0`–`255.255.255.255`) and enforces strict octet rules (disallows leading zeros like `192.168.01.1`).
+- **IPv6 Validation:** Supports standard and compressed IPv6 formats (including double-colon `::` notation).
+- **CIDR Notation Parsing:** Validates IP addresses paired with subnet prefixes (e.g., `192.168.1.0/24` or `2001:db8::/32`).
+- **Zero External Dependencies:** Built using Python standard libraries for maximum portability.
+- **Unit Tested:** Includes comprehensive unit tests covering valid, invalid, and edge-case inputs.
 
-## Usage
+---
 
-```python
-from ip_validator import validate_ip, validate_ipv6, get_ip_info
+## Project Structure
 
-# Validate IPv4
-print(validate_ip("192.168.1.1"))  # True
-print(validate_ip("192.168.01.1")) # False (leading zero)
-
-# Validate IPv6
-print(validate_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334")) # True
-
-# Get IP Metadata
-info = get_ip_info("192.168.1.1")
-print(info)
-# Output:
-# {
-#   'ip': '192.168.1.1',
-#   'valid': True,
-#   'class': 'C',
-#   'is_private': True,
-#   'is_loopback': False,
-#   'octets': [192, 168, 1, 1],
-#   'binary': '11000000.10101000.00000001.00000001'
-# }
+```text
+.
+├── .gitignore
+├── LICENSE
+├── README.md
+├── ip_validator.py       # Core IP validation module
+├── requirements.txt      # Dependency configurations
+└── test_ip_validator.py  # Comprehensive test suite
