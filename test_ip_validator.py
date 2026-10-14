@@ -31,9 +31,9 @@ class TestIPValidator(unittest.TestCase):
 
     def test_invalid_ipv4_non_ascii_digits(self):
         # str.isdigit()/int() both accept non-ASCII Unicode decimal digits
-        # (e.g. full-width "192" using \uff11\uff19\uff12), which previously
-        # let a lookalike string silently pass as a normal octet and get
-        # parsed as 192.168.1.1. Only plain ASCII 0-9 should be accepted.
+        # (e.g. full-width "\uff11\uff19\uff12"), which previously let a lookalike
+        # string silently pass as a normal octet and get parsed as
+        # 192.168.1.1. Only plain ASCII 0-9 should be accepted.
         self.assertFalse(validate_ip("\uff11\uff19\uff12.168.1.1"))
 
     # --- IPv6 Tests ---
@@ -79,6 +79,32 @@ class TestIPValidator(unittest.TestCase):
     def test_ip_class_e_is_still_240_to_255(self):
         info = get_ip_info("240.1.1.1")
         self.assertEqual(info["class"], "E (Experimental)")
+
+    def test_ip_info_link_local(self):
+        # 169.254.0.0/16 (APIPA) was previously silently reported as a
+        # normal, non-private Class B address.
+        info = get_ip_info("169.254.1.1")
+        self.assertTrue(info["is_link_local"])
+        self.assertFalse(info["is_private"])
+
+    def test_ip_info_cgnat(self):
+        # 100.64.0.0/10 (RFC 6598 carrier-grade NAT) had no flag at all.
+        info = get_ip_info("100.64.0.1")
+        self.assertTrue(info["is_cgnat"])
+        info_outside_range = get_ip_info("100.128.0.1")
+        self.assertFalse(info_outside_range["is_cgnat"])
+
+    def test_ip_info_multicast_flag(self):
+        # Multicast was only ever visible buried in the "class" string,
+        # unlike is_private/is_loopback which are proper booleans.
+        info = get_ip_info("224.0.0.1")
+        self.assertTrue(info["is_multicast"])
+        self.assertFalse(get_ip_info("192.168.1.1")["is_multicast"])
+
+    def test_ip_info_reserved_flag(self):
+        self.assertTrue(get_ip_info("0.5.5.5")["is_reserved"])
+        self.assertTrue(get_ip_info("245.1.1.1")["is_reserved"])
+        self.assertFalse(get_ip_info("192.168.1.1")["is_reserved"])
 
 
 if __name__ == "__main__":

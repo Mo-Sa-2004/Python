@@ -20,9 +20,9 @@ def validate_ip(ip: Any) -> bool:
 
     for part in parts:
         # `str.isdigit()`/`int()` accept non-ASCII Unicode decimal digits
-        # (e.g. full-width "１９２" or Devanagari "०"), which would let a
-        # lookalike string silently pass as a normal IPv4 octet. Require
-        # plain ASCII 0-9 only.
+        # (e.g. full-width "\uff11\uff19\uff12" or Devanagari digits), which
+        # would let a lookalike string silently pass as a normal IPv4 octet.
+        # Require plain ASCII 0-9 only.
         if not (part.isascii() and part.isdigit()):
             return False
         # Disallow leading zeros unless the octet is strictly '0'
@@ -77,13 +77,21 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
     else:
         ip_class = "E (Experimental)"
 
-    # Identify Private/Loopback flags
+    # Identify Private/Loopback/special-use flags
     is_private = (
         (first == 10)
         or (first == 172 and 16 <= octets[1] <= 31)
         or (first == 192 and octets[1] == 168)
     )
     is_loopback = first == 127
+    # 169.254.0.0/16 - link-local (APIPA)
+    is_link_local = first == 169 and octets[1] == 254
+    # 100.64.0.0/10 - shared address space for carrier-grade NAT (RFC 6598)
+    is_cgnat = first == 100 and 64 <= octets[1] <= 127
+    # 224.0.0.0/4 - multicast
+    is_multicast = 224 <= first <= 239
+    # 0.0.0.0/8 and 240.0.0.0/4 - reserved/"this network"/experimental
+    is_reserved = first == 0 or first >= 240
 
     return {
         "ip": ip,
@@ -91,6 +99,10 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
         "class": ip_class,
         "is_private": is_private,
         "is_loopback": is_loopback,
+        "is_link_local": is_link_local,
+        "is_cgnat": is_cgnat,
+        "is_multicast": is_multicast,
+        "is_reserved": is_reserved,
         "octets": octets,
         "binary": ".".join(f"{o:08b}" for o in octets),
     }
