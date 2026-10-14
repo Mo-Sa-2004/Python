@@ -19,7 +19,11 @@ def validate_ip(ip: Any) -> bool:
         return False
 
     for part in parts:
-        if not part.isdigit():
+        # `str.isdigit()`/`int()` accept non-ASCII Unicode decimal digits
+        # (e.g. full-width "１９２" or Devanagari "०"), which would let a
+        # lookalike string silently pass as a normal IPv4 octet. Require
+        # plain ASCII 0-9 only.
+        if not (part.isascii() and part.isdigit()):
             return False
         # Disallow leading zeros unless the octet is strictly '0'
         if len(part) > 1 and part.startswith("0"):
@@ -57,7 +61,7 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
     octets = [int(p) for p in ip.split(".")]
     first = octets[0]
 
-        # Determine Address Class
+    # Determine Address Class
     if first == 0:
         ip_class = "Reserved (0.0.0.0/8)"
     elif 1 <= first <= 126:
@@ -72,6 +76,7 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
         ip_class = "D (Multicast)"
     else:
         ip_class = "E (Experimental)"
+
     # Identify Private/Loopback flags
     is_private = (
         (first == 10)

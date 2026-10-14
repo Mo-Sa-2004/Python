@@ -29,6 +29,13 @@ class TestIPValidator(unittest.TestCase):
         self.assertFalse(validate_ip(123456))
         self.assertFalse(validate_ip(["192.168.1.1"]))
 
+    def test_invalid_ipv4_non_ascii_digits(self):
+        # str.isdigit()/int() both accept non-ASCII Unicode decimal digits
+        # (e.g. full-width "192" using \uff11\uff19\uff12), which previously
+        # let a lookalike string silently pass as a normal octet and get
+        # parsed as 192.168.1.1. Only plain ASCII 0-9 should be accepted.
+        self.assertFalse(validate_ip("\uff11\uff19\uff12.168.1.1"))
+
     # --- IPv6 Tests ---
     def test_valid_ipv6(self):
         self.assertTrue(validate_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334"))
@@ -56,7 +63,7 @@ class TestIPValidator(unittest.TestCase):
 
         invalid_info = get_ip_info("invalid_ip")
         self.assertIsNone(invalid_info)
-        
+
     def test_ip_class_loopback_is_not_class_e(self):
         # 127.0.0.1 (localhost) was previously classified as "E
         # (Experimental)", contradicting its own is_loopback=True flag.
