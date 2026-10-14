@@ -2,8 +2,13 @@
 IP Address Validator and Parser Utility Module.
 """
 
+import argparse
 import ipaddress
+import json
+import sys
 from typing import Any, Dict, Optional
+
+__version__ = "0.1.0"
 
 
 def validate_ip(ip: Any) -> bool:
@@ -20,9 +25,9 @@ def validate_ip(ip: Any) -> bool:
 
     for part in parts:
         # `str.isdigit()`/`int()` accept non-ASCII Unicode decimal digits
-        # (e.g. full-width "\uff11\uff19\uff12" or Devanagari digits), which
-        # would let a lookalike string silently pass as a normal IPv4 octet.
-        # Require plain ASCII 0-9 only.
+        # (e.g. full-width "\uff11\uff19\uff12"), which would let a
+        # lookalike string silently pass as a normal IPv4 octet. Require
+        # plain ASCII 0-9 only.
         if not (part.isascii() and part.isdigit()):
             return False
         # Disallow leading zeros unless the octet is strictly '0'
@@ -106,3 +111,40 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
         "octets": octets,
         "binary": ".".join(f"{o:08b}" for o in octets),
     }
+
+
+def _parse_args(argv: Optional[list] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="ip-validator",
+        description="Validate an IPv4/IPv6 address and print its metadata.",
+    )
+    parser.add_argument("ip", help="IP address to check, e.g. 192.168.1.1 or ::1")
+    parser.add_argument(
+        "--json", action="store_true", help="Print the result as JSON."
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: Optional[list] = None) -> None:
+    args = _parse_args(argv)
+
+    if validate_ip(args.ip):
+        info = get_ip_info(args.ip)
+    elif validate_ipv6(args.ip):
+        info = {"ip": args.ip, "valid": True, "version": 6}
+    else:
+        print(f"'{args.ip}' is not a valid IPv4 or IPv6 address.", file=sys.stderr)
+        raise SystemExit(1)
+
+    if args.json:
+        print(json.dumps(info, indent=2))
+    else:
+        for key, value in info.items():
+            print(f"{key}: {value}")
+
+
+if __name__ == "__main__":
+    main()

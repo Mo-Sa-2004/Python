@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["ip_validator"]
+
+[project]
+name = "ip-validator"
+version = "0.1.0"
+description = "A lightweight, dependency-free Python library for validating IPv4/IPv6 addresses and extracting network metadata."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [{ name = "Mohammed Saeed" }]
+dependencies = []
+
+[project.scripts]
+ip-validator = "ip_validator:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
