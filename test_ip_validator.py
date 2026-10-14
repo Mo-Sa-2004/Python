@@ -1,5 +1,6 @@
-﻿import unittest
-from ip_validator import validate_ip, validate_ipv6, get_ip_info
+import unittest
+
+from ip_validator import get_ip_info, validate_ip, validate_ipv6
 
 
 class TestIPValidator(unittest.TestCase):

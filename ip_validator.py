@@ -1,4 +1,4 @@
-﻿"""
+"""
 IP Address Validator and Parser Utility Module.
 """
 
@@ -6,7 +6,7 @@ import argparse
 import ipaddress
 import json
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 __version__ = "0.1.0"
 
@@ -56,7 +56,7 @@ def validate_ipv6(ip: Any) -> bool:
     return True
 
 
-def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
+def get_ip_info(ip: str) -> Optional[dict[str, Any]]:
     """
     Returns detailed structural metadata for a valid IPv4 address.
     """
