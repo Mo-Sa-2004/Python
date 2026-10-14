@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from ip_validator import validate_ip, validate_ipv6, get_ip_info
 
 
@@ -33,9 +33,19 @@ class TestIPValidator(unittest.TestCase):
     def test_valid_ipv6(self):
         self.assertTrue(validate_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334"))
 
+    def test_valid_ipv6_compressed(self):
+        # "::" (RFC 4291 zero-compression) covers the most common real-world
+        # IPv6 addresses - loopback, unspecified, and link-local - none of
+        # which the old regex-only validator accepted.
+        self.assertTrue(validate_ipv6("::1"))  # loopback
+        self.assertTrue(validate_ipv6("::"))  # unspecified address
+        self.assertTrue(validate_ipv6("fe80::1"))  # link-local
+        self.assertTrue(validate_ipv6("2001:db8::1"))
+
     def test_invalid_ipv6(self):
         self.assertFalse(validate_ipv6("192.168.1.1"))
         self.assertFalse(validate_ipv6("2001:0db8:85a3"))
+        self.assertFalse(validate_ipv6("2001::db8::1"))  # "::" used twice
 
     # --- Metadata Tests ---
     def test_ip_info(self):

@@ -1,9 +1,9 @@
-"""
+﻿"""
 IP Address Validator and Parser Utility Module.
 """
 
-import re
-from typing import Any, Dict, Optional, Tuple
+import ipaddress
+from typing import Any, Dict, Optional
 
 
 def validate_ip(ip: Any) -> bool:
@@ -33,15 +33,18 @@ def validate_ip(ip: Any) -> bool:
 
 def validate_ipv6(ip: Any) -> bool:
     """
-    Checks if a given string is a valid IPv6 address.
+    Checks if a given string is a valid IPv6 address, including the
+    compressed "::" notation (RFC 4291), e.g. "::1" or "fe80::1".
     """
     if not isinstance(ip, str):
         return False
 
-    ipv6_pattern = re.compile(
-        r"^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
-    )
-    return bool(ipv6_pattern.match(ip))
+    try:
+        ipaddress.IPv6Address(ip)
+    except ValueError:
+        return False
+
+    return True
 
 
 def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
