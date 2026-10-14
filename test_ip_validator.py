@@ -56,6 +56,22 @@ class TestIPValidator(unittest.TestCase):
 
         invalid_info = get_ip_info("invalid_ip")
         self.assertIsNone(invalid_info)
+        
+    def test_ip_class_loopback_is_not_class_e(self):
+        # 127.0.0.1 (localhost) was previously classified as "E
+        # (Experimental)", contradicting its own is_loopback=True flag.
+        # 127.0.0.0/8 is reserved for loopback, not Class E.
+        info = get_ip_info("127.0.0.1")
+        self.assertEqual(info["class"], "A (Loopback)")
+        self.assertTrue(info["is_loopback"])
+
+    def test_ip_class_zero_network_is_reserved(self):
+        info = get_ip_info("0.5.5.5")
+        self.assertEqual(info["class"], "Reserved (0.0.0.0/8)")
+
+    def test_ip_class_e_is_still_240_to_255(self):
+        info = get_ip_info("240.1.1.1")
+        self.assertEqual(info["class"], "E (Experimental)")
 
 
 if __name__ == "__main__":

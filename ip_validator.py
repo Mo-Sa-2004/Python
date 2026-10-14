@@ -57,9 +57,13 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
     octets = [int(p) for p in ip.split(".")]
     first = octets[0]
 
-    # Determine Address Class
-    if 1 <= first <= 126:
+        # Determine Address Class
+    if first == 0:
+        ip_class = "Reserved (0.0.0.0/8)"
+    elif 1 <= first <= 126:
         ip_class = "A"
+    elif first == 127:
+        ip_class = "A (Loopback)"
     elif 128 <= first <= 191:
         ip_class = "B"
     elif 192 <= first <= 223:
@@ -68,7 +72,6 @@ def get_ip_info(ip: str) -> Optional[Dict[str, Any]]:
         ip_class = "D (Multicast)"
     else:
         ip_class = "E (Experimental)"
-
     # Identify Private/Loopback flags
     is_private = (
         (first == 10)
