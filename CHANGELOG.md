@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project are documented here.
 
@@ -25,9 +25,26 @@ All notable changes to this project are documented here.
 - `LICENSE` had a malformed copyright symbol (`(x)` instead of `(c)`),
   an out-of-date author name, and was missing the standard MIT
   warranty disclaimer paragraph.
+- **`validate_ip` accepted non-ASCII Unicode decimal digits** (e.g.
+  full-width Unicode digits) as IPv4 octets, silently normalizing a lookalike
+  string into a real address. Only plain ASCII `0`-`9` is accepted now.
+- A real `mypy` type-narrowing issue in the new CLI's `main()` (see
+  below), where the type checker couldn't prove `get_ip_info` had
+  already returned non-`None` after a successful `validate_ip` check.
 
 ### Added
 
 - GitHub Actions CI running the test suite on every push and pull
   request, across Python 3.9-3.12.
 - Regression tests for the IPv6 and classification fixes above.
+- `is_link_local` (169.254.0.0/16), `is_cgnat` (100.64.0.0/10), and
+  `is_multicast` (224.0.0.0/4) flags on `get_ip_info`, consistent with
+  the existing `is_private`/`is_loopback` booleans. `is_reserved`
+  covers 0.0.0.0/8 and 240.0.0.0/4.
+- `pyproject.toml` packaging - the project is now pip-installable
+  (`pip install -e .`) and exposes an `ip-validator` CLI command.
+- Ruff linting and mypy type-checking, both run in CI; the 3 lint
+  issues and 1 type issue they found on first run are fixed.
+- `pytest-cov` coverage reporting (99%, enforced at a 90% minimum in
+  CI) and a new `test_cli.py` covering the CLI end to end.
+- `CONTRIBUTING.md`.
