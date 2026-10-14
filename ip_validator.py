@@ -133,6 +133,7 @@ def main(argv: Optional[list] = None) -> None:
 
     if validate_ip(args.ip):
         info = get_ip_info(args.ip)
+        assert info is not None  # validate_ip already confirmed this is valid
     elif validate_ipv6(args.ip):
         info = {"ip": args.ip, "valid": True, "version": 6}
     else:
