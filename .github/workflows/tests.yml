@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
-      - name: Run tests
-        run: pytest -v
+      - name: Run tests with coverage
+        run: pytest -v --cov=ip_validator --cov-report=term-missing --cov-fail-under=90
 
   lint:
     runs-on: ubuntu-latest

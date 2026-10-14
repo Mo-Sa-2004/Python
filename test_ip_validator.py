@@ -55,6 +55,10 @@ class TestIPValidator(unittest.TestCase):
         self.assertFalse(validate_ipv6("2001:0db8:85a3"))
         self.assertFalse(validate_ipv6("2001::db8::1"))  # "::" used twice
 
+    def test_invalid_ipv6_non_string(self):
+        self.assertFalse(validate_ipv6(None))
+        self.assertFalse(validate_ipv6(12345))
+
     # --- Metadata Tests ---
     def test_ip_info(self):
         info = get_ip_info("192.168.1.1")
